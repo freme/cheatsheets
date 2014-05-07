@@ -1,0 +1,537 @@
+\documentclass[a4paper,10pt,landscape]{article}
+\usepackage{multicol}
+\usepackage{calc}
+\usepackage{ifthen}
+\usepackage[landscape]{geometry}
+
+
+% Times for rm and math | Helvetica for ss | Courier for tt
+\usepackage{mathptmx} % rm & math
+\usepackage[scaled=0.90]{helvet} % ss
+\usepackage{courier} % tt
+\normalfont
+\usepackage[T1]{fontenc}
+
+
+%% Palatino for rm and math | Helvetica for ss | Courier for tt
+%\usepackage{mathpazo} % math & rm
+%\linespread{1.05}        % Palatino needs more leading (space between lines)
+%\usepackage[scaled]{helvet} % ss
+%\usepackage{courier} % tt
+%\normalfont
+%\usepackage[T1]{fontenc}
+
+%% Euler for math | Palatino for rm | Helvetica for ss | Courier for tt
+%\renewcommand{\rmdefault}{ppl} % rm
+%\linespread{1.05}        % Palatino needs more leading
+%\usepackage[scaled]{helvet} % ss
+%\usepackage{courier} % tt
+%\usepackage{euler} % math
+%%\usepackage{eulervm} % a better implementation of the euler package (not in gwTeX)
+%\normalfont
+%\usepackage[T1]{fontenc}
+
+
+
+% To make this come out properly in landscape mode, do one of the following
+% 1.
+%  pdflatex latexsheet.tex
+%
+% 2.
+%  latex latexsheet.tex
+%  dvips -P pdf  -t landscape latexsheet.dvi
+%  ps2pdf latexsheet.ps
+
+
+% If you're reading this, be prepared for confusion.  Making this was
+% a learning experience for me, and it shows.  Much of the placement
+% was hacked in; if you make it better, let me know...
+
+
+% 2008-04
+% Changed page margin code to use the geometry package. Also added code for
+% conditional page margins, depending on paper size. Thanks to Uwe Ziegenhagen
+% for the suggestions.
+
+% 2006-08
+% Made changes based on suggestions from Gene Cooperman. <gene at ccs.neu.edu>
+
+
+% To Do:
+% \listoffigures \listoftables
+% \setcounter{secnumdepth}{0}
+
+
+% This sets page margins to .5 inch if using letter paper, and to 1cm
+% if using A4 paper. (This probably isn't strictly necessary.)
+% If using another size paper, use default 1cm margins.
+\ifthenelse{\lengthtest { \paperwidth = 11in}}
+	{ \geometry{top=.5in,left=.5in,right=.5in,bottom=.5in} }
+	{\ifthenelse{ \lengthtest{ \paperwidth = 297mm}}
+		{\geometry{top=1cm,left=1cm,right=1cm,bottom=1cm} }
+		{\geometry{top=1cm,left=1cm,right=1cm,bottom=1cm} }
+	}
+
+% Turn off header and footer
+\pagestyle{empty}
+ 
+
+% Redefine section commands to use less space
+\makeatletter
+\renewcommand{\section}{\@startsection{section}{1}{0mm}%
+                                {-1ex plus -.5ex minus -.2ex}%
+                                {0.5ex plus .2ex}%x
+                                {\normalfont\large\bfseries}}
+\renewcommand{\subsection}{\@startsection{subsection}{2}{0mm}%
+                                {-1explus -.5ex minus -.2ex}%
+                                {0.5ex plus .2ex}%
+                                {\normalfont\normalsize\bfseries}}
+\renewcommand{\subsubsection}{\@startsection{subsubsection}{3}{0mm}%
+                                {-1ex plus -.5ex minus -.2ex}%
+                                {1ex plus .2ex}%
+                                {\normalfont\small\bfseries}}
+\makeatother
+
+% Define BibTeX command
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+% Don't print section numbers
+\setcounter{secnumdepth}{0}
+
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt plus 0.5ex}
+
+
+% -----------------------------------------------------------------------
+
+\begin{document}
+
+\raggedright
+\footnotesize
+\begin{multicols}{3}
+
+
+% multicol parameters
+% These lengths are set only within the two main columns
+%\setlength{\columnseprule}{0.25pt}
+\setlength{\premulticols}{1pt}
+\setlength{\postmulticols}{1pt}
+\setlength{\multicolsep}{1pt}
+\setlength{\columnsep}{2pt}
+
+\begin{center}
+     \Large{\textbf{VampirTrace Cheat Sheet}} \\
+\end{center}
+
+\section{Commandline arguments}
+\begin{tabular}{@{}ll@{}}
+\texttt{-vt:help}            & Show the help message.\\
+\texttt{-vt:cc  <cmd>}       & Set the underlying compiler command.\\
+\texttt{-vt:inst <type>}     & Set the instrumentation type.\\
+\hspace{5ex} compinst          & fully-automatic by compiler\\
+\hspace{5ex} manual            & manual by using VampirTrace's API\\
+\hspace{5ex} dyninst           & binary by using Dyninst (www.dyninst.org) \\
+\texttt{-vt:opari <args>}    & Set options for OPARI command.\\
+\texttt{-vt:<par-type>}      & Force application's parallelization type.\\
+\hspace{5ex} seq               & sequential\\
+\hspace{5ex} mpi               & parallel (uses MPI)\\
+\hspace{5ex} mt                & arallel (uses OpenMP/POSIX threads)\\
+\hspace{5ex} hyb               & hybrid parallel (MPI + Threads)\\
+\texttt{-vt:verbose}         & Enable verbose mode.\\
+\texttt{-vt:show}            & dry-run, shows call to compiler.
+\end{tabular}
+
+\section{Compiler Wrappers}
+environment variablesaffecting the compiler wrappers:\\
+\begin{tabular}{@{}ll@{}}
+\texttt{VT\_INST}            & Instrumentation type (equivalent to \texttt{-vt:inst})\\
+\texttt{VT\_CC}              & C compiler command (equivalent to \texttt{-vt:cc})\\
+\texttt{VT\_CFLAGS}          & C compiler flags\\
+\texttt{VT\_LDFLAGS}         & Linker flags\\
+\texttt{VT\_LIBS}            & Libraries to pass to the linker
+\end{tabular}
+
+\subsection{Serial programs}
+\begin{tabular}{@{}ll@{}}
+original:              &  \tt gfortran hello.f90 -o hello  \\
+vampir:  &  \tt \textbf{vtf90} hello.f90 -o hello  \\
+\end{tabular}
+
+\subsection{MPI parallel programs}
+\begin{tabular}{@{}ll@{}}
+original:              &  \tt mpicc hello.c -o hello  \\
+vampir:  &  \tt \textbf{vtcc -vt:cc mpicc} hello.c -o hello  \\
+\end{tabular}
+
+\subsection{Threaded parallel programs}
+\begin{tabular}{@{}ll@{}}
+original:              &  \tt ifort <-openmp|-pthread> hello.f90 -o hi \\
+vampir:  &  \tt \textbf{vtf90} <-openmp|-pthread> hello.f90 -o hi \\
+\end{tabular}
+
+\subsection{Hybrid MPI/Threaded parallel programs}
+\begin{tabular}{@{}ll@{}}
+original:              &  \tt mpif90 <-openmp|-pthread> hello.F90 \\
+                       &  \tt -o hello \\
+vampir:  &  \tt \textbf{vtf90 -vt:f90 mpif90} <-openmp|-pthread> \\
+                       &  \tt hello.F90 -o hello\\
+\end{tabular}
+
+\subsection{Unification of Local Traces}
+Set \texttt{OMP\_NUM\_THREADS} if needed\\
+Threaded: \verb!vtunify <prefix>!\\
+MPI: \verb!mpirun -np <nranks> vtunify-mpi <prefix>!
+
+\section{Instrumentation}
+\subsection{Manual Instrumentation}
+
+\begin{multicols}{2}
+C:\\
+\verb!#include "vt_user.h"!\\
+\verb!VT_USER_START("name");!\\
+\verb!...!\\
+\verb!VT_USER_END("name");!\\
+
+Fortran:\\
+\verb!#include "vt_user.inc"!\\
+\verb!VT_USER_START('name')!\\
+\verb!...!\\
+\verb!VT_USER_END('name')!
+\end{multicols}
+\vspace{2ex}
+Combined with automatic compiler instrumentation:\\
+\texttt{vtcc \textbf{-DVTRACE} hello.c -o hello}\\[1ex]
+Without compiler instrumentation:\\
+\texttt{vtcc -vt:inst manual \textbf{-DVTRACE} hello.c -o hello}
+
+\subsection{Tracing Calls to 3rd-Party Libraries}
+Create a instrumented version of shared library:\\
+\verb!vtlibwrapgen -g SDL -o wrap.c /.../SDL/*.h!\\
+\verb!vtlibwrapgen --build --shared -o libwrap wrap.c!\\
+\verb!LD_PRELOAD=$PWD/libwrap.so <executable>!
+
+\subsection{Switching tracing on/off}
+\texttt{VT\_ON}/ \texttt{VT\_OFF} start and stop the recording of events\\
+check whether tracing is enabled: \texttt{VT\_IS\_ON}
+
+\subsection{Trace buffer rewind}
+Decide dynamically \textit{after} a section wether to record events
+\verb!do step=1,number_of_time_steps!\\
+\verb!    VT_SET_REWIND_MARK()!\\
+\verb!    call compute_time_step(step)!\\
+\verb!    if(finished_as_expected) VT_REWIND()!\\
+\verb!end do!
+
+\subsection{Intermediate buffer flush}
+Force flushing of buffers: \texttt{VT\_BUFFER\_FLUSH}
+
+\subsection{Intermediate time synchronisation}
+Flush the buffer at \textit{!synchronized!} point:(eg. barrier): \texttt{VT\_TIMESYNC}
+Don't forget to \texttt{export VT\_ETIMESYNC=yes}
+
+\subsection{Intermediate counter update}
+For counter values at any given point: \texttt{VT\_UPDATE\_COUNTER}
+
+\subsection{User defined counter}
+Allow recording of program variable values or any other numerical quantity.
+It is identified by its name, the counter group, the type of its value (int or float) and the unit(e.g.~``GFlop/sec'').
+\begin{multicols}{2}
+C:\\
+\verb!#include "vt_user.h"!\\
+\verb!unsigned int id, gid;!\\
+\verb!gid = VT_COUNT_GROUP_DEF!\\
+\verb!                ("name");!\\
+\verb!id = VT_COUNT_DEF("name",!\\
+\verb!      "unit", type, gid);!\\
+
+Fortran:\\
+\verb!#include "vt_user.inc"!\\
+\verb!integer :: id, gid!\\
+\verb!VT_COUNT_GROUP_DEF!\\
+\verb!     ('name', gid)!\\
+\verb!VT_COUNT_DEF('name',!\\
+\verb!'unit', type, gid, id)!!\\
+\end{multicols}
+
+All the uppercase entries start with \texttt{\textbf{VT\_COUNT\_}} that has been ommitted to fit on the cheatsheet.
+\begin{tabular}{@{}l@{ }l@{ }l@{}}
+\textbf{Fortran:} \\
+\textbf{Type} & \textbf{Count call} & \textbf{Data type} \\ 
+\texttt{TYPE\_INTEGER} &
+	\texttt{INTEGER\_VAL} &
+	integer (4 byte) \\
+\texttt{TYPE\_INTEGER8} &
+	\texttt{INTEGER8\_VAL} &
+	integer (8 byte) \\
+\texttt{TYPE\_REAL} &
+	\texttt{REAL\_VAL} &
+	real \\
+\texttt{TYPE\_DOUBLE} &
+	\texttt{DOUBLE\_VAL} &
+	double precision \\
+
+\textbf{C/C++:} \\
+\textbf{Type} & \textbf{Count call} & \textbf{Data type} \\ 
+\texttt{TYPE\_SIGNED} &
+	\texttt{SIGNED\_VAL} &
+	signed int (max. 64-bit) \\
+\texttt{TYPE\_UNSIGNED} &
+	\texttt{UNSIGNED\_VAL} &
+	unsigned int (max. 64-bit) \\
+\texttt{TYPE\_FLOAT} &
+	\texttt{FLOAT\_VAL} &
+	float \\
+\texttt{TYPE\_DOUBLE} &
+	\texttt{DOUBLE\_VAL} &
+	double \\
+\end{tabular}
+
+\section{Environment Variables}
+\begin{tabular}{@{}l@{}l@{}l@{}}
+\texttt{ } & \textbf{Global Settings} & \texttt{ } \\
+\texttt{VT\_APPPATH} & Path to the application executable. & -- \\
+\texttt{VT\_BUFFER\_SIZE} & Internal event trace buffer. & 32M \\
+\texttt{VT\_CLEAN} & Remove temporary trace files? & yes \\
+\texttt{VT\_COMPRESSION} & Write compressed trace files?  & yes \\
+\texttt{VT\_FILE\_PREFIX} & Prefix used for trace filenames. & \\
+\texttt{VT\_FILE\_UNIQUE} & Unique naming? no, yes, [id] & no \\
+\texttt{VT\_MAX\_FLUSHES} & Maximum number of buffer flushes. &	1 \\
+\texttt{VT\_MAX\_THREADS} & Threads VT reserves resources for &	65536 \\
+\texttt{VT\_PFORM\_GDIR} & Global directory to store final trace. & \texttt{./} \\
+\texttt{VT\_PFORM\_LDIR} & Node-local temp directory & \texttt{/tmp/} \\
+\texttt{VT\_UNIFY} & Unify local trace files afterwards? & yes \\
+\texttt{VT\_VERBOSE} & Quiet (0), Critical (1), Information (2) & 1 \\
+%\end{tabular}
+%\begin{tabular}{@{}l@{}l@{}l@{}}
+\texttt{ } & \textbf{Optional Features} & \texttt{ } \\
+\texttt{VT\_CPUIDTRACE} & Tracing of core ID of a CPU? & no \\
+\texttt{VT\_ETIMESYNC} & Enhanced timer synchronization? & no \\
+\texttt{VT\_ETIMESYNC\_INTV} & Interval between two phases(seconds). & 120 \\
+\texttt{VT\_IOLIB\_PATHNAME} & Library to use for LIBC I/O calls. & -- \\
+\texttt{VT\_IOTRACE} & Tracing of application I/O calls? & no \\
+\texttt{VT\_LIBCTRACE} & Tracing of fork/system/exec calls? & yes \\
+\texttt{VT\_MEMTRACE} & Memory allocation counter? & no \\
+\texttt{VT\_MODE} & TRACE, STAT, TRACE:STAT (both). & TRACE \\
+\texttt{VT\_MPICHECK} & Correctness checking via UniMCI? & no \\
+\texttt{VT\_MPICHECK\_ERREXIT} & Force trace write on error & no \\
+\texttt{VT\_MPITRACE} &	Tracing of MPI events?  & yes \\
+\texttt{VT\_OMPTRACE} & Tracing of OpenMP events & yes \\
+\texttt{VT\_PTHREAD\_REUSE} & Reuse IDs of terminated Pthreads? & yes \\
+\texttt{VT\_STAT\_INV} & Interval of profiling records & 0 \\
+\texttt{VT\_STAT\_PROPS} & FUNC, MSG, COLLOP, ALL & ALL \\
+\texttt{VT\_SYNC\_FLUSH} & Synchronized buffer flush? & no \\
+\texttt{VT\_SYNC\_FLUSH\_LEVEL} & Minimum buffer fill level in percent. & 80 \\
+\end{tabular}
+\begin{tabular}{@{}l@{}l@{}l@{}}
+\texttt{ } & \textbf{Counters} & \texttt{ } \\
+\texttt{VT\_METRICS} & list of counter. & -- \\
+\texttt{VT\_METRICS\_SEP} &	Separator string in VT\_METRICS. & : \\
+\texttt{VT\_RUSAGE} & Colon-separated list of rusage counters & -- \\
+\texttt{VT\_RUSAGE\_INTV} & Sample interval in ms. & 100 \\
+%\end{tabular}
+%\begin{tabular}{@{}l@{}l@{}l@{}}
+\texttt{ } & \textbf{Filtering, Grouping} & \texttt{ } \\
+\texttt{VT\_DYN\_BLACKLIST} & Blacklist file for Dyninst & -- \\
+\texttt{VT\_DYN\_SHLIBS} & Colon-separated list of shared libraries & -- \\
+\texttt{VT\_FILTER\_SPEC} & Name of function/region filter file. & -- \\
+\texttt{VT\_GROUPS\_SPEC} & Name of function grouping file. & -- \\
+\texttt{VT\_JAVA\_FILTER\_SPEC} & Name of Java specific filter file. & -- \\
+\texttt{VT\_GROUP\_CLASSES} & Create Java class group automatically? & yes \\
+\texttt{VT\_MAX\_STACK\_DEPTH} & Maximum stack level (0 = unlimited) & 0 \\
+%\end{tabular}
+%\begin{tabular}{@{}l@{}l@{}l@{}}
+\texttt{ } & \textbf{Symbol List} & \texttt{ } \\
+\texttt{VT\_GNU\_NM} & Command for symbols of object files & nm \\
+\texttt{VT\_GNU\_NMFILE} & File with symbol list information. & -- \\
+\end{tabular}
+
+\section{Synchronized Buffer Flush}
+Have Vampir flush buffers when 1 buffer reaches \texttt{VT\_SYNC\_FLUSH\_LEVEL} at the next MPI collective that is using \texttt{MPI\_COMM\_WORLD}.\\
+\texttt{export VT\_SYNC\_FLUSH=yes}
+
+\section{Enhanced Timer Synchronization}
+This scheme inserts additional synchronization phases at appropriate
+points in the program flow. Currently, VampirTrace makes use of all MPI collective
+functions associated with \texttt{MPI\_COMM\_WORLD}. A LAPACK library with C wrapper support has to be provided.\\
+\texttt{export VT\_ETIMESYNC=yes}\\
+Additionally, set the interval in seconds between the synchronization phases.\\
+\texttt{export VT\_ETIMESYNC\_INTV=600}\\
+LAPACK libraries providing a C-LAPACK API that can be used by VampirTrace:\\
+- CLAPACK (www.netlib.org/clapack)\\
+- AMD ACML\\
+- IBM ESSL\\
+- Intel MKL\\
+- SUN Performance Library\\
+Note though that this is not needed for systems with a global timer.
+
+\section{Hardware Performance Counters}
+VampirTrace supports different hardware counter libraries and relies on those API's to gather the counter values. An exclamation mark ''!'' marks a counter to be measured as an absolute value.
+
+\subsection*{PAPI Hardware Performance Counters}
+\verb|VT_METRICS=PAPI_FP_OPS:PAPI_L2_TCM:!CPU_TEMP1|\\
+\texttt{CPU\_TEMP1} is provided by the lm-sensors component. See \texttt{papi\_avail} and \texttt{papi\_native\_avail} for available counter.
+\begin{scriptsize}
+\begin{verbatim}
+PAPI_L[1|2|3]_[D|I|T]C[M|H|A|R|W]    
+              Level 1/2/3 data/instruction/total cache 
+              misses/hits/accesses/reads/writes
+PAPI_L[1|2|3]_[LD|ST]M    
+              Level 1/2/3 load/store misses                       
+PAPI_CA_SNP   Requests for a snoop                                
+PAPI_CA_SHR   Req. for excl. access to shared cache line  
+PAPI_CA_CLN   Req. for excl. access to clean cache line   
+PAPI_CA_INV   Requests for cache line invalidation                
+PAPI_CA_ITV   Requests for cache line intervention                
+PAPI_BRU_IDL  Cycles branch units are idle                        
+PAPI_FXU_IDL  Cycles integer units are idle                       
+PAPI_FPU_IDL  Cycles floating point units are idle                
+PAPI_LSU_IDL  Cycles load/store units are idle                    
+PAPI_TLB_DM   Data translation lookaside buffer misses            
+PAPI_TLB_IM   Instruction transl. lookaside buffer misses     
+PAPI_TLB_TL   Total translation lookaside buffer misses           
+PAPI_BTAC_M   Branch target address cache misses                  
+PAPI_PRF_DM   Data prefetch cache misses                          
+PAPI_TLB_SD   Translation lookaside buffer shootdowns             
+PAPI_CSR_FAL  Failed store conditional instructions               
+PAPI_CSR_SUC  Successful store conditional instructions           
+PAPI_CSR_TOT  Total store conditional instructions                
+PAPI_MEM_SCY  Cycles Stalled Waiting for memory accesses          
+PAPI_MEM_RCY  Cycles Stalled Waiting for memory Reads             
+PAPI_MEM_WCY  Cycles Stalled Waiting for memory writes            
+PAPI_STL_ICY  Cycles with no instruction issue                    
+PAPI_FUL_ICY  Cycles with maximum instruction issue               
+PAPI_STL_CCY  Cycles with no instructions completed               
+PAPI_FUL_CCY  Cycles with maximum instructions completed          
+PAPI_BR_UCN   Unconditional branch instructions                   
+PAPI_BR_CN    Conditional branch instructions                     
+PAPI_BR_TKN   Conditional branch instructions taken               
+PAPI_BR_NTK   Conditional branch instructions not taken           
+PAPI_BR_MSP   Conditional branch inst. mispredicted        
+PAPI_BR_PRC   Cond. branch inst. correctly predicted 
+PAPI_FMA_INS  FMA instructions completed                          
+PAPI_TOT_IIS  Instructions issued                                 
+PAPI_TOT_INS  Instructions completed                              
+PAPI_INT_INS  Integer instructions                                
+PAPI_FP_INS   Floating point instructions                         
+PAPI_LD_INS   Load instructions                                   
+PAPI_SR_INS   Store instructions                                  
+PAPI_BR_INS   Branch instructions                                 
+PAPI_VEC_INS  Vector/SIMD instructions                            
+PAPI_LST_INS  Load/store instructions completed                   
+PAPI_SYC_INS  Synchronization instructions completed              
+PAPI_FML_INS  Floating point multiply instructions                
+PAPI_FAD_INS  Floating point add instructions                     
+PAPI_FDV_INS  Floating point divide instructions                  
+PAPI_FSQ_INS  Floating point square root instructions             
+PAPI_FNV_INS  Floating point inverse instructions                 
+PAPI_RES_STL  Cycles stalled on any resource    
+PAPI_FP_STAL  Cycles the FP unit(s) are stalled 
+PAPI_FP_OPS   Floating point operations         
+PAPI_TOT_CYC  Total cycles                      
+PAPI_HW_INT   Hardware interrupts               
+\end{verbatim} 
+\end{scriptsize}
+
+
+
+\subsection*{CPC Hardware Performance Counters}
+Sun Solaris features the CPC performance counter library to query the hw-counter. See \texttt{vtcpcavail} for your options.
+
+\subsection*{NEC SX Hardware Performance Counters}
+NEC SX machines uses special register calls to query the processor's  hardware counters. See NEC SX manual.
+\begin{tabular}{@{}ll@{}}
+\texttt{SX\_CTR\_STM}   & System timer reg\\
+\texttt{SX\_CTR\_USRCC} & User clock counter\\
+\texttt{SX\_CTR\_EX}    & Execution counter\\
+\texttt{SX\_CTR\_VX }   & Vector execution counter\\
+\texttt{SX\_CTR\_VE}    & Vector element counter\\
+\texttt{SX\_CTR\_VECC}  & Vector execution clock counter\\
+\texttt{SX\_CTR\_VAREC} & Vector arithmetic execution clock counter\\
+\texttt{SX\_CTR\_VLDEC} & Vector load execution clock counter\\
+\texttt{SX\_CTR\_FPEC}  & Floating point data execution counter\\
+\texttt{SX\_CTR\_BCCC}  & Bank conflict clock counter\\
+\texttt{SX\_CTR\_ICMCC} & Instruction cache miss clock counter\\
+\texttt{SX\_CTR\_OCMCC} & Operand cache miss clock counter\\
+\texttt{SX\_CTR\_IPHCC} & Instruction pipeline hold clock counter\\
+\texttt{SX\_CTR\_MNCCC} & Memory network conflict clock counter\\
+\texttt{SX\_CTR\_SRACC} & Shared resource access clock counter\\
+\texttt{SX\_CTR\_BREC}  & Branch execution counter\\
+\texttt{SX\_CTR\_BPFC}  & Branch prediction failure counter
+\end{tabular}
+
+\section{Resource Usage Counters}
+The Unix system call \texttt{getrusage} provides information about consumed  resources and operating system events.\\
+\verb|VT_RUSAGE=ru_stime:ru_majflt|\\
+The resource usage counters are not recorded at every event. Set intervall in ms:\\
+\texttt{export VT\_RUSAGE\_INTV=100} (most OS support min. of 10ms )\\
+Counters are per process, not per thread.
+\begin{tabular}{@{}l@{}l@{ }c@{ }l@{}}
+\textbf{Name}          &  \textbf{Unit}  & \textbf{Linux} & \textbf{Description}  \\
+\texttt{ru\_utime}     &  ms             & x         & Total amount of user time used.  \\
+\texttt{ru\_stime}     &  ms             & x         & Total amount of system time used.  \\
+\texttt{ru\_maxrss}    &  kB             &           & Maximum resident set size. \\
+\texttt{ru\_ixrss}     &  kB/s           &           & Integral shared memory size (text segment). \\
+\texttt{ru\_idrss}     &  kB/s           &           & Integral data segment memory used over runtime. \\
+\texttt{ru\_isrss}     &  kB/s           &           & Integral stack memory used over the runtime. \\
+\texttt{ru\_minflt}    &  \#             & x         & Number of soft page faults. \\
+\texttt{ru\_majflt}    &  \#             & x         & Number of hard page faults. \\
+\texttt{ru\_nswap}     &  \#             &           & \# times process was swapped out of phys. mem. \\
+\texttt{ru\_inblock}   &  \#             &           & Number of input operations via the file system. \\
+\texttt{ru\_oublock}   &  \#             &           & Number of output operations via the file system. \\
+\texttt{ru\_msgsnd}    &  \#             &           & Number of IPC messages sent. \\
+\texttt{ru\_msgrcv}    &  \#             &           & Number of IPC messages received. \\
+\texttt{ru\_nsignals}  &  \#             &           & Number of signals delivered. \\
+\texttt{ru\_nvcsw}     &  \#             & x         & Number of voluntary context switches. \\
+\texttt{ru\_nivcsw}    &  \#             & x         & Number of involuntary context switches. \\
+\end{tabular}
+
+\section{Function Filtering}
+To decrease trace-size specify filter directives before running.\\
+\verb!# syntax: <regions> -- <limit>!\\
+\verb!#   regions  semicolon-separated list of regions!\\
+\verb!#            (can be wildcards)!\\
+\verb!#   limit    assigned call limit!\\
+\verb!#             0 = region(s) denied!\\
+\verb!#            -1 = unlimited!\\
+\verb!add;sub;mul;div -- 1000!\\
+\verb!* -- 3000000!\\
+To activate set environment vaiable accordingly:\\
+\texttt{export VT\_FILTER\_SPEC=/path/to/filter.txt}\\
+Rank specific filtering is also possible:\\
+\verb!@ 4 - 10, 20 - 29, 34!\\
+\verb!foo;bar -- 2000!\\
+\verb!* -- 0!\\
+
+\section{Function Grouping}
+All functions of a group are assigned one color in visualization.
+\begin{tabular}{@{}ll@{}}
+\textbf{Group name} & \textbf{Contained functions/regions}\\
+\texttt{MPI}  & MPI functions\\
+\texttt{OMP}  & OpenMP API function calls\\
+\texttt{OMP\_SYNC} & OpenMP barriers \\
+\texttt{OMP\_PREG} & OpenMP parallel regions \\
+\texttt{Pthreads} & Pthread API function calls \\
+\texttt{MEM}  & Memory allocation functions \\
+\texttt{I/O}  & I/O functions \\
+\texttt{LIBC} & LIBC fork/system/exec functions )\\
+\texttt{Application} & all the rest\\
+\end{tabular}\\
+Define you own groups in a text-file.\\
+\verb!# syntax: <group>=<regions>!\\
+\verb!#   group    group name !\\
+\verb!#   regions  semicolon-separated list of regions!\\
+\verb!#            (can be wildcards)!\\
+\verb!CALC=add;sub;mul;div!\\
+\verb!USER=app_*!\\
+To activate set environment vaiable accordingly:\\
+\texttt{export VT\_GROUPS\_SPEC=/path/to/groups.txt}\\
+
+
+
+
+
+\end{multicols}
+\end{document}
+
