@@ -230,18 +230,18 @@ Create trace file including performance counter\\
 %\texttt{ \% export SCOREP\_TOTAL\_MEMORY=30M}\\
 \texttt{ \% mpirun -np 4 ./binary\_scorep}\\[2ex]
 
-Open trace in Vampir client:\\
+Open trace in \textbf{Vampir client}:\\
 \texttt{ \% vampir scorep\_run\_trace/traces.otf2}\\[2ex]
 
-Open trace using VampirServer:\\
+Open trace using \textbf{VampirServer}:\\
 \texttt{ \% \# Launch on remote machine:}\\
 \texttt{ \% vampirserver start -n 4 }\\
 \texttt{ Running 4 analysis processes... (abort with vampirserver stop 17950)}\\
 \texttt{ VampirServer <17950> listens on: node123:30085}\\
 \texttt{ \% \# Open SSH tunnel on your local machine:}\\
 \texttt{ \% ssh -L30000:node123:300085 mymachine}\\[2ex]
-Open Vampir and connect to server localhost:30000 to open trace.\\[2ex]
-
+Open Vampir and connect to server localhost:30000 to open trace.\\
+\texttt{ \% vampir localhost:30000:scorep\_run\_trace/traces.otf2}\\[2ex]
 Shutdown VampirServer:\\
 \texttt{ \% \# Remote:}\\
 \texttt{ \% vampirserver stop}
