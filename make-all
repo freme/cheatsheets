@@ -1,0 +1,9 @@
+#!/bin/bash
+
+pdflatex vtcheatsheet_a4.tex
+pdflatex vtcheatsheet_letter.tex
+pdflatex spcheatsheet_a4.tex
+pdflatex spcheatsheet_letter.tex
+
+rm *.aux
+rm *.log
