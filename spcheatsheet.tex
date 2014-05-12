@@ -11,7 +11,7 @@
 \normalfont
 \usepackage[T1]{fontenc}
 \usepackage{graphicx}
-
+\usepackage{color}
 
 %% Palatino for rm and math | Helvetica for ss | Courier for tt
 %\usepackage{mathpazo} % math & rm
@@ -230,20 +230,22 @@ Create trace file including performance counter\\
 %\texttt{ \% export SCOREP\_TOTAL\_MEMORY=30M}\\
 \texttt{ \% mpirun -np 4 ./binary\_scorep}\\[2ex]
 
-Open trace in \textbf{Vampir client}:\\
+\textbf{Open small traces direclty in Vampir}\\
 \texttt{ \% vampir scorep\_run\_trace/traces.otf2}\\[2ex]
 
-Open trace using \textbf{VampirServer}:\\
-\texttt{ \% \# Launch on remote machine:}\\
+\textbf{Open large traces using VampirServer}\\
+1. Launch analysis server on remote machine\\
 \texttt{ \% vampirserver start -n 4 }\\
 \texttt{ Running 4 analysis processes... (abort with vampirserver stop 17950)}\\
-\texttt{ VampirServer <17950> listens on: node123:30085}\\
-\texttt{ \% \# Open SSH tunnel on your local machine:}\\
-\texttt{ \% ssh -L30000:node123:300085 mymachine}\\[2ex]
-Open Vampir and connect to server localhost:30000 to open trace.\\
+\texttt{ VampirServer <17950> listens on: \textcolor{red}{node123:30085}}\\[2ex]
+
+2. Open SSH tunnel to connect remote VampirServer with GUI on your local machine\\
+\texttt{ \% ssh -L30000:\textcolor{red}{node123:30085} mymachine}\\[2ex]
+
+3. Open Vampir and connect to VampirServer (listening on localhost:30000 via SSH tunnel)\\
 \texttt{ \% vampir localhost:30000:scorep\_run\_trace/traces.otf2}\\[2ex]
-Shutdown VampirServer:\\
-\texttt{ \% \# Remote:}\\
+
+4. Shutdown VampirServer on remote machine when finished\\
 \texttt{ \% vampirserver stop}
 
 
