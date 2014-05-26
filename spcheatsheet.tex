@@ -205,20 +205,13 @@ Create profile with filter applied\\
 
 
 \subsection{Automatic Trace Analysis with Scalasca}
-Run the application using the Scalasca\\
-\texttt{ \% export OMP\_NUM\_THREADS=4}\\
-\texttt{ \% scan -f ./scorep.filt  mpirun -np 4 ./binary\_scorep}\\
-Score summary analysis report\\
-\texttt{ \% square -s scorep\_run}\\
-Post-processing and interactive exploration with CUBE\\
-\texttt{ \% square scorep\_run}\\
-Re-run with trace collection and analysis\\
-\texttt{ \% export SCAN\_ANALYZE\_OPTS="-i"}\\
+Run the application using Scalasca with trace collection and analysis\\
+\texttt{ \% export SCOREP\_EXPERIMENT\_DIRECTORY=scorep\_run\_trace}\\
 \texttt{ \% export OMP\_NUM\_THREADS=4}\\
 \texttt{ \% export SCOREP\_TOTAL\_MEMORY=25M}\\
 \texttt{ \% scan -f ./scorep.filt -t mpirun -np 4 ./binary\_scorep}\\
-Produces trace analysis report\\
-\texttt{ \% square scorep\_run}\\
+Produces and examine trace analysis report\\
+\texttt{ \% square scorep\_run\_trace}\\
 
 \subsection{Interactive Performance Analysis with Vampir}
 Create trace file including performance counter\\
