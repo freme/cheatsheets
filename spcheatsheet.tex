@@ -214,12 +214,12 @@ Produces and examine trace analysis report\\
 \texttt{ \% square scorep\_run\_trace}\\
 
 \subsection{Interactive Performance Analysis with Vampir}
-
 \textbf{Open small traces direclty in Vampir}\\
 \texttt{ \% vampir scorep\_run\_trace/traces.otf2}\\[2ex]
 
 \textbf{Open large traces using VampirServer}\\
 1. Launch analysis server on remote machine\\
+\texttt{ \% ssh remote-machine}\\
 \texttt{ \% vampirserver start -n 4 }\\
 \texttt{ Running 4 analysis processes... (abort with vampirserver stop 17950)}\\
 \texttt{ VampirServer <17950> listens on: \textcolor{red}{node123:30085}}\\[2ex]
@@ -231,6 +231,7 @@ Produces and examine trace analysis report\\
 \texttt{ \% vampir localhost:30000:scorep\_run\_trace/traces.otf2}\\[2ex]
 
 4. Shutdown VampirServer on remote machine when finished\\
+\texttt{ \% ssh remote-machine}\\
 \texttt{ \% vampirserver stop}
 
 
