@@ -154,12 +154,12 @@
 \itemsep0.1em
 \item  Create a profile with full instrumentation
 \item  Compare runtime to uninstrumented run to determine overhead
-\item  (Incrementally) create filter file using output of
+\item  (Incrementally) create filter file using hints from the
       \texttt{scorep-score} tool
 \item  Create an optimized profile with filter applied
 \item  Investigate profile with CUBE
 \item  For in-depth analysis, generate a trace \textbf{with filter applied}
-      and examine it using Scalasca or Vampir
+      and examine it using Scalasca and than Vampir
 \end{itemize}
 
 
@@ -195,7 +195,7 @@ Run application as usual:\\
 \subsection{Profile Examination with CUBE and Filter File Creation}
 Analyze profile with CUBE\\
 \texttt{ \% cube scorep\_run/profile.cubex}\\
-Create filter file with \texttt{scorep-score}\\
+Create filter file with hints from \texttt{scorep-score}\\
 \texttt{ \% scorep-score -r scorep\_run/profile.cubex}\\
 \texttt{ \% scorep-score -r -f ./scorep.filt scorep\_run/profile.cubex}\\
 Create profile with filter applied\\
@@ -205,36 +205,21 @@ Create profile with filter applied\\
 
 
 \subsection{Automatic Trace Analysis with Scalasca}
-Run the application using the Scalasca\\
-\texttt{ \% export OMP\_NUM\_THREADS=4}\\
-\texttt{ \% scan -f ./scorep.filt  mpirun -np 4 ./binary\_scorep}\\
-Score summary analysis report\\
-\texttt{ \% square -s scorep\_run}\\
-Post-processing and interactive exploration with CUBE\\
-\texttt{ \% square scorep\_run}\\
-Re-run with trace collection and analysis\\
-\texttt{ \% export SCAN\_ANALYZE\_OPTS="-i"}\\
+Run the application using Scalasca with trace collection and analysis\\
+\texttt{ \% export SCOREP\_EXPERIMENT\_DIRECTORY=scorep\_run\_trace}\\
 \texttt{ \% export OMP\_NUM\_THREADS=4}\\
 \texttt{ \% export SCOREP\_TOTAL\_MEMORY=25M}\\
 \texttt{ \% scan -f ./scorep.filt -t mpirun -np 4 ./binary\_scorep}\\
-Produces trace analysis report\\
-\texttt{ \% square scorep\_run}\\
+Produces and examine trace analysis report\\
+\texttt{ \% square scorep\_run\_trace}\\
 
 \subsection{Interactive Performance Analysis with Vampir}
-Create trace file including performance counter\\
-\texttt{ \% export SCOREP\_EXPERIMENT\_DIRECTORY=scorep\_run\_trace}\\
-%\texttt{ \% export SCOREP\_FILTERING\_FILE=../config/scorep.filt}\\
-\texttt{ \% export SCOREP\_ENABLE\_TRACING=true}\\
-%\texttt{ \% export SCOREP\_ENABLE\_PROFILING=false}\\
-%\texttt{ \% export SCOREP\_METRIC\_PAPI=PAPI\_L2\_DCM}\\
-%\texttt{ \% export SCOREP\_TOTAL\_MEMORY=30M}\\
-\texttt{ \% mpirun -np 4 ./binary\_scorep}\\[2ex]
-
 \textbf{Open small traces direclty in Vampir}\\
 \texttt{ \% vampir scorep\_run\_trace/traces.otf2}\\[2ex]
 
 \textbf{Open large traces using VampirServer}\\
 1. Launch analysis server on remote machine\\
+\texttt{ \% ssh remote-machine}\\
 \texttt{ \% vampirserver start -n 4 }\\
 \texttt{ Running 4 analysis processes... (abort with vampirserver stop 17950)}\\
 \texttt{ VampirServer <17950> listens on: \textcolor{red}{node123:30085}}\\[2ex]
@@ -246,6 +231,7 @@ Create trace file including performance counter\\
 \texttt{ \% vampir localhost:30000:scorep\_run\_trace/traces.otf2}\\[2ex]
 
 4. Shutdown VampirServer on remote machine when finished\\
+\texttt{ \% ssh remote-machine}\\
 \texttt{ \% vampirserver stop}
 
 
