@@ -154,7 +154,7 @@
 \itemsep0.1em
 \item  Create a profile with full instrumentation
 \item  Compare runtime to uninstrumented run to determine overhead
-\item  (Incrementally) create filter file using output of
+\item  (Incrementally) create filter file using hints from the
       \texttt{scorep-score} tool
 \item  Create an optimized profile with filter applied
 \item  Investigate profile with CUBE
@@ -195,7 +195,7 @@ Run application as usual:\\
 \subsection{Profile Examination with CUBE and Filter File Creation}
 Analyze profile with CUBE\\
 \texttt{ \% cube scorep\_run/profile.cubex}\\
-Create filter file with \texttt{scorep-score}\\
+Create filter file with hints from \texttt{scorep-score}\\
 \texttt{ \% scorep-score -r scorep\_run/profile.cubex}\\
 \texttt{ \% scorep-score -r -f ./scorep.filt scorep\_run/profile.cubex}\\
 Create profile with filter applied\\
