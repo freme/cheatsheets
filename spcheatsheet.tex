@@ -138,15 +138,6 @@
 \item \textbf{Optimization}: apply optimizations to eliminate bottleneck
 \item \textbf{Repeat}: apply analysis workflow loop until acceptable performance achieved
 \end{itemize}
-\end{minipage}
-\hspace{.05\columnwidth}
-\begin{minipage}{.15\columnwidth}
-%\begin{figure}
-\centering
-\includegraphics[width=\textwidth]{Workflow}
-%\caption{The intended workflow loop}
-%\end{figure}
-\end{minipage}
 
 \subsection{Performance Analysis Procedure}
   
@@ -161,6 +152,15 @@
 \item  For in-depth analysis, generate a trace \textbf{with filter applied}
       and examine it using Scalasca and than Vampir
 \end{itemize}
+\end{minipage}
+\hspace{.05\columnwidth}
+\begin{minipage}{.22\columnwidth}
+%\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{Workflow}
+%\caption{The intended workflow loop}
+%\end{figure}
+\end{minipage}
 
 
 \subsection{Application Instrumentation}
@@ -174,9 +174,9 @@
 Set Score-P environment variables\\[1ex]
 \begin{tabular}{@{}l@{ }l@{ }}
 \texttt{SCOREP\_EXPERIMENT\_DIRECTORY} & Name of the experiment directory\\
-\texttt{SCOREP\_ENABLE\_PROFILING} & Enable generation of profiles (default)\\
-\texttt{SCOREP\_ENABLE\_TRACING} & Enable the generation of traces\\
-\texttt{SCOREP\_TOTAL\_MEMORY} & Total memory in bytes used for the measurement system per process\\
+\texttt{SCOREP\_ENABLE\_PROFILING} & Enable generation of profiles (default=true)\\
+\texttt{SCOREP\_ENABLE\_TRACING} & Enable the generation of traces (default=false)\\
+\texttt{SCOREP\_TOTAL\_MEMORY} & Total memory in bytes used for Score-P per process (default=16M)\\
 \texttt{SCOREP\_FILTERING\_FILE} & Name of file containing filter rules\\
 \end{tabular}\\[1ex]
 ... and many more (see manual or run \texttt{scorep-info config-vars ---full})\\
@@ -190,7 +190,8 @@ Run application as usual:\\
 \texttt{ \% export OMP\_NUM\_THREADS=4}\\
 \texttt{ \% mpirun -np 4 ./binary\_scorep}\\
 
-\vspace{1em}
+%\vspace{1em}
+\newpage
 
 \subsection{Profile Examination with CUBE and Filter File Creation}
 Analyze profile with CUBE\\
@@ -200,7 +201,7 @@ Create filter file with hints from \texttt{scorep-score}\\
 \texttt{ \% scorep-score -r -f ./scorep.filt scorep\_run/profile.cubex}\\
 Create profile with filter applied\\
 \texttt{ \% export SCOREP\_EXPERIMENT\_DIRECTORY=scorep\_run\_filter}\\
-\texttt{ \% export SCOREP\_FILTERING\_FILE=./scorep.filt}\\
+\texttt{ \% export SCOREP\_FILTERING\_FILE=scorep.filt}\\
 \texttt{ \% mpirun -np 4 ./binary\_scorep}\\
 
 
@@ -240,7 +241,7 @@ Produces and examine trace analysis report\\
 \pagebreak
 
 \section{PAPI Hardware Performance Counters}
-\verb|VT_METRICS=PAPI_FP_OPS:PAPI_L2_TCM:!CPU_TEMP1|\\
+\texttt{\% export SCOREP\_METRIC\_PAPI=PAPI\_L2\_DCM:!CPU\_TEMP1}\\
 \texttt{CPU\_TEMP1} is provided by the lm-sensors component.\\ 
 See \texttt{papi\_avail} and \texttt{papi\_native\_avail} for available counter.
 \begin{scriptsize}
@@ -309,10 +310,7 @@ PAPI_HW_INT   Hardware interrupts
 
 \section{Resource Usage Counters}
 The Unix system call \texttt{getrusage} provides information about consumed  resources and operating system events.\\
-\verb|VT_RUSAGE=ru_stime:ru_majflt|\\
-The resource usage counters are not recorded at every event. Set intervall in ms:\\
-\texttt{export VT\_RUSAGE\_INTV=100} (most OS support min. of 10ms )\\
-Counters are per process, not per thread.\\
+\texttt{\% export SCOREP\_METRIC\_RUSAGE=ru\_stime:ru\_majflt}\\
 \begin{tabular}{@{}l@{}l@{ }c@{ }l@{}}
 \textbf{Name}          &  \textbf{Unit}  & \textbf{Linux} & \textbf{Description}  \\
 \texttt{ru\_utime}     &  ms             & x         & Total amount of user time used.  \\
